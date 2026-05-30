@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LiteBrowser</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="browser" class="browser">
+    <div id="titlebar" class="titlebar">
+      <div class="titlebar-drag-region"></div>
+      <div class="titlebar-tabs" id="tabsContainer">
+        <div class="tab active" data-tab-id="0">
+          <div class="tab-favicon"></div>
+          <div class="tab-title">New Tab</div>
+          <button class="tab-close" title="Close tab">&times;</button>
+        </div>
+        <button class="new-tab-btn" id="newTabBtn" title="New tab">+</button>
+      </div>
+      <div class="titlebar-controls">
+        <button class="control-btn minimize" id="minimizeBtn" title="Minimize">&#9472;</button>
+        <button class="control-btn maximize" id="maximizeBtn" title="Maximize">&#9633;</button>
+        <button class="control-btn close" id="closeBtn" title="Close">&#10005;</button>
+      </div>
+    </div>
+
+    <div id="bookmarksBar" class="bookmarks-bar">
+      <div class="bookmarks-list" id="bookmarksList"></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="nav-buttons">
+        <button class="nav-btn" id="backBtn" title="Back (Alt+Left)" disabled>&#9664;</button>
+        <button class="nav-btn" id="forwardBtn" title="Forward (Alt+Right)" disabled>&#9654;</button>
+        <button class="nav-btn" id="reloadBtn" title="Reload (Ctrl+R)">&#8635;</button>
+        <button class="nav-btn" id="homeBtn" title="Home">&#8962;</button>
+      </div>
+
+      <div class="address-bar-container">
+        <button class="site-info-btn" id="siteInfoBtn" title="View site information">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 4v1M8 7v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="address-bar" id="addressBar">
+          <input type="text" id="urlInput" class="url-input" placeholder="Search or enter URL" autocomplete="off" spellcheck="false">
+        </div>
+        <button class="bookmark-btn" id="bookmarkBtn" title="Bookmark this page (Ctrl+D)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 2h10v12l-5-3-5 3V2z" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="toolbar-right">
+        <button class="nav-btn" id="downloadsBtn" title="Downloads (Ctrl+J)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2v8M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="nav-btn extensions-btn" id="extensionsBtn" title="Extensions">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 2h4v4h4v4h-4v4H6v-4H2V6h4V2z" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
+        </button>
+        <button class="nav-btn" id="menuBtn" title="Customize and control LiteBrowser (Alt+F)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="3" r="1.5" fill="currentColor"/>
+            <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+            <circle cx="8" cy="13" r="1.5" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="content-area" id="contentArea">
+      <div id="tabContents">
+        <div class="tab-content active" data-tab-id="0">
+          <webview id="webview-0" class="webview" src="about:blank" partition="persist:main"></webview>
+        </div>
+      </div>
+
+      <div id="newTabPage" class="new-tab-page">
+        <div class="ntp-content">
+          <div class="ntp-logo">
+            <h1>Lite<span>Browser</span></h1>
+          </div>
+          <div class="ntp-search">
+            <input type="text" id="ntpSearch" placeholder="Search the web" class="ntp-search-input">
+          </div>
+          <div class="ntp-shortcuts" id="ntpShortcuts"></div>
+          <div class="ntp-weather" id="ntpWeather"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-bar" id="statusBar">
+      <div class="status-text" id="statusText"></div>
+      <div class="zoom-indicator" id="zoomIndicator">100%</div>
+    </div>
+  </div>
+
+  <div id="menuOverlay" class="menu-overlay hidden">
+    <div id="mainMenu" class="chrome-menu">
+      <div class="menu-header">
+        <div class="menu-user">
+          <div class="avatar">U</div>
+          <span>User Profile</span>
+        </div>
+      </div>
+      <div class="menu-content">
+        <button class="menu-item" id="menuNewTab">
+          <span class="menu-icon">+</span>
+          <span>New tab</span>
+          <span class="menu-shortcut">Ctrl+T</span>
+        </button>
+        <button class="menu-item" id="menuNewWindow">
+          <span class="menu-icon">&#9633;</span>
+          <span>New window</span>
+          <span class="menu-shortcut">Ctrl+N</span>
+        </button>
+        <button class="menu-item" id="menuIncognito">
+          <span class="menu-icon">&#128373;</span>
+          <span>New incognito window</span>
+          <span class="menu-shortcut">Ctrl+Shift+N</span>
+        </button>
+        <div class="menu-separator"></div>
+        <button class="menu-item" id="menuHistory">
+          <span class="menu-icon">&#128337;</span>
+          <span>History</span>
+          <span class="menu-shortcut">Ctrl+H</span>
+        </button>
+        <button class="menu-item" id="menuDownloads">
+          <span class="menu-icon">&#11015;</span>
+          <span>Downloads</span>
+          <span class="menu-shortcut">Ctrl+J</span>
+        </button>
+        <button class="menu-item" id="menuBookmarks">
+          <span class="menu-icon">&#9734;</span>
+          <span>Bookmarks</span>
+          <span class="menu-shortcut">Ctrl+Shift+O</span>
+        </button>
+        <div class="menu-separator"></div>
+        <div class="menu-item has-submenu" id="menuZoom">
+          <span class="menu-icon">&#128269;</span>
+          <span>Zoom</span>
+          <div class="submenu-arrows">
+            <button class="submenu-btn" id="menuZoomOut">-</button>
+            <span class="submenu-value" id="menuZoomValue">100%</span>
+            <button class="submenu-btn" id="menuZoomIn">+</button>
+          </div>
+        </div>
+        <button class="menu-item" id="menuPrint">
+          <span class="menu-icon">&#128424;</span>
+          <span>Print...</span>
+          <span class="menu-shortcut">Ctrl+P</span>
+        </button>
+        <div class="menu-separator"></div>
+        <button class="menu-item" id="menuFind">
+          <span class="menu-icon">&#128269;</span>
+          <span>Find in page...</span>
+          <span class="menu-shortcut">Ctrl+F</span>
+        </button>
+        <button class="menu-item" id="menuCast">
+          <span class="menu-icon">&#128225;</span>
+          <span>Cast...</span>
+        </button>
+        <div class="menu-separator"></div>
+        <div class="menu-item has-submenu" id="menuMoreTools">
+          <span class="menu-icon">&#128295;</span>
+          <span>More tools</span>
+          <span class="submenu-arrow">&#9656;</span>
+        </div>
+        <div class="menu-item has-submenu" id="menuClearData">
+          <span class="menu-icon">&#128465;</span>
+          <span>Clear browsing data</span>
+          <span class="menu-shortcut">Ctrl+Shift+Del</span>
+        </div>
+        <div class="menu-separator"></div>
+        <button class="menu-item" id="menuSettings">
+          <span class="menu-icon">&#9881;</span>
+          <span>Settings</span>
+          <span class="menu-shortcut">Ctrl+,</span>
+        </button>
+        <button class="menu-item" id="menuHelp">
+          <span class="menu-icon">?</span>
+          <span>Help</span>
+          <span class="submenu-arrow">&#9656;</span>
+        </button>
+        <div class="menu-separator"></div>
+        <div class="menu-item" id="menuExit">
+          <span class="menu-icon">&#10005;</span>
+          <span>Exit</span>
+          <span class="menu-shortcut">Alt+F4</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="findBar" class="find-bar hidden">
+    <div class="find-content">
+      <input type="text" id="findInput" class="find-input" placeholder="Find in page">
+      <span class="find-count" id="findCount">0/0</span>
+      <button class="find-btn" id="findPrev" title="Previous">&#9650;</button>
+      <button class="find-btn" id="findNext" title="Next">&#9660;</button>
+      <button class="find-btn find-close" id="findClose">&#10005;</button>
+    </div>
+  </div>
+
+  <div id="dialogOverlay" class="dialog-overlay hidden">
+    <div id="dialog" class="dialog">
+      <div class="dialog-header" id="dialogTitle"></div>
+      <div class="dialog-body" id="dialogBody"></div>
+      <div class="dialog-footer" id="dialogFooter"></div>
+    </div>
+  </div>
+
+  <div id="contextMenu" class="context-menu hidden">
+    <button class="context-item" id="ctxBack">Back</button>
+    <button class="context-item" id="ctxForward">Forward</button>
+    <button class="context-item" id="ctxReload">Reload</button>
+    <div class="context-separator"></div>
+    <button class="context-item" id="ctxSaveAs">Save as...</button>
+    <button class="context-item" id="ctxPrint">Print...</button>
+    <button class="context-item" id="ctxViewSource">View page source</button>
+    <button class="context-item" id="ctxInspect">Inspect</button>
+    <div class="context-separator"></div>
+    <button class="context-item" id="ctxCopyLink">Copy link address</button>
+    <button class="context-item" id="ctxOpenNewTab">Open link in new tab</button>
+    <button class="context-item" id="ctxOpenNewWindow">Open link in new window</button>
+    <button class="context-item" id="ctxOpenIncognito">Open link in incognito window</button>
+  </div>
+
+  <div id="tooltip" class="tooltip hidden"></div>
+
+  <script src="browser.js"></script>
+</body>
+</html>

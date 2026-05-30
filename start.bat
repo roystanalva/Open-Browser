@@ -1,0 +1,3 @@
+@echo off
+echo Starting LiteBrowser...
+call npm start

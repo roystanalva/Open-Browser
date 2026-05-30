@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager - LiteBrowser</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px;
+      background: #202124;
+      color: #e8eaed;
+      overflow: hidden;
+    }
+
+    .task-manager {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .header {
+      padding: 16px 20px;
+      background: #292a2d;
+      border-bottom: 1px solid #3c4043;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header h2 {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 6px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-primary {
+      background: #8ab4f8;
+      color: #202124;
+    }
+
+    .btn-primary:hover {
+      background: #aecbfa;
+    }
+
+    .btn-secondary {
+      background: #35363a;
+      color: #e8eaed;
+    }
+
+    .btn-secondary:hover {
+      background: #4a4d51;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid #3c4043;
+    }
+
+    th {
+      background: #292a2d;
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+    }
+
+    tr:hover {
+      background: #35363a;
+    }
+
+    .process-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .process-icon {
+      width: 16px;
+      height: 16px;
+      background: #8ab4f8;
+      border-radius: 50%;
+    }
+
+    .memory-cell {
+      color: #81c995;
+    }
+
+    .cpu-cell {
+      color: #fdd663;
+    }
+
+    .footer {
+      padding: 12px 20px;
+      background: #292a2d;
+      border-top: 1px solid #3c4043;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-info {
+      color: #9aa0a6;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="task-manager">
+    <div class="header">
+      <h2>Task Manager</h2>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="window.close()">Close</button>
+        <button class="btn btn-secondary" id="endProcessBtn" disabled>End process</button>
+      </div>
+    </div>
+    <div class="content">
+      <table>
+        <thead>
+          <tr>
+            <th>Process</th>
+            <th>Memory</th>
+            <th>CPU</th>
+            <th>Network</th>
+            <th>Process ID</th>
+          </tr>
+        </thead>
+        <tbody id="processList">
+          <tr>
+            <td>
+              <div class="process-name">
+                <div class="process-icon"></div>
+                LiteBrowser
+              </div>
+            </td>
+            <td class="memory-cell">150 MB</td>
+            <td class="cpu-cell">2.5%</td>
+            <td>0 KB/s</td>
+            <td>12345</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="process-name">
+                <div class="process-icon"></div>
+                GPU Process
+              </div>
+            </td>
+            <td class="memory-cell">85 MB</td>
+            <td class="cpu-cell">1.2%</td>
+            <td>0 KB/s</td>
+            <td>12346</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="process-name">
+                <div class="process-icon"></div>
+                Tab: New Tab
+              </div>
+            </td>
+            <td class="memory-cell">45 MB</td>
+            <td class="cpu-cell">0.8%</td>
+            <td>12 KB/s</td>
+            <td>12347</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="process-name">
+                <div class="process-icon"></div>
+                Network Service
+              </div>
+            </td>
+            <td class="memory-cell">32 MB</td>
+            <td class="cpu-cell">0.3%</td>
+            <td>25 KB/s</td>
+            <td>12348</td>
+          </tr>
+          <tr>
+            <td>
+              <div class="process-name">
+                <div class="process-icon"></div>
+                Storage Service
+              </div>
+            </td>
+            <td class="memory-cell">18 MB</td>
+            <td class="cpu-cell">0.1%</td>
+            <td>0 KB/s</td>
+            <td>12349</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="footer">
+      <div class="footer-info">
+        Total memory: 330 MB | Total CPU: 4.9%
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const processList = document.getElementById('processList');
+    const endProcessBtn = document.getElementById('endProcessBtn');
+    let selectedRow = null;
+
+    processList.addEventListener('click', (e) => {
+      const row = e.target.closest('tr');
+      if (row && row.parentElement === processList) {
+        if (selectedRow) {
+          selectedRow.style.background = '';
+        }
+        selectedRow = row;
+        row.style.background = '#3c4043';
+        endProcessBtn.disabled = false;
+      }
+    });
+
+    endProcessBtn.addEventListener('click', () => {
+      if (selectedRow) {
+        selectedRow.remove();
+        selectedRow = null;
+        endProcessBtn.disabled = true;
+      }
+    });
+
+    function updateStats() {
+      const rows = processList.querySelectorAll('tr');
+      let totalMemory = 0;
+      let totalCpu = 0;
+
+      rows.forEach(row => {
+        const memoryText = row.cells[1].textContent;
+        const cpuText = row.cells[2].textContent;
+
+        const memoryMatch = memoryText.match(/(\d+)/);
+        const cpuMatch = cpuText.match(/([\d.]+)/);
+
+        if (memoryMatch) totalMemory += parseInt(memoryMatch[1]);
+        if (cpuMatch) totalCpu += parseFloat(cpuMatch[1]);
+      });
+
+      document.querySelector('.footer-info').textContent =
+        `Total memory: ${totalMemory} MB | Total CPU: ${totalCpu.toFixed(1)}%`;
+    }
+
+    setInterval(updateStats, 2000);
+  </script>
+</body>
+</html>
